@@ -4,8 +4,8 @@
     <style type="text/css">
     </style>
     <meta charset="utf-8">
-	<script type="text/javascript" src="vue.js" data-main="js/main" ></script>
-  
+	<script type="text/javascript" src="vue.js" ></script>
+    <script type="text/javascript" src="vuex.js" ></script>
 </head>
 <body>
    <div id="hook-arguments-example" v-demo:foo.a.b="message">hahahahaha</div>
@@ -17,8 +17,36 @@
       <button @click="say($event)">点击我</button>
    </ul>
 
+   <ul id="example-3">
+       <div>
+           <button @click="stateGet()">点击store</button>
+       </div>
+   </ul>
+
 </body>
  <script>
+           const store = new Vuex.Store({
+             state: {
+               count: 22,
+               open: 1
+             },
+             mutations: {
+               increment(state) {
+                 state.count++
+               },
+               add(state,item){
+                     state.open = state.open + item
+               }
+             },
+               actions: {
+                   increment ({commit}) {
+                       commit('increment')
+                       commit('add',1)
+                   }
+               }
+           })
+		   
+
 		 Vue.directive('demo', {
 			bind: function (el, binding, vnode) {
 			var s = JSON.stringify
@@ -40,6 +68,7 @@
 		
 		var example2 = new Vue({
 		  el: '#example-2',
+          store,
 		  data: {
 			parentMessage: 'Parent',
 			items: [
@@ -49,13 +78,49 @@
 		  },
           methods: {
 		      say: function (event) {
+                  store.commit('increment')
                   if (event) {
                       event.preventDefault();
                   }
-                  alert('1');
+                  //this.add(2);
+                  alert(this.$store.state.open);
               }
+//              ...Vuex.mapMutations({
+//                add: 'add'
+//              })
           }
 		})
+
+
+         var example3 = new Vue({
+           el: '#example-3',
+           store,
+           data: {
+           },
+//           computed: Vuex.mapState({
+//             count: state => state.count,
+//             countAdd(state){
+//               return  state.open + "zlg"
+//             }
+//           }),
+           computed:{
+             ...Vuex.mapState({
+                open:'open',
+                count:'count'
+             })
+           },
+           methods: {
+              stateGet: function () {
+                 store.dispatch('increment').then(() => {
+                     alert(this.open)
+                 })
+                 alert(this.count)
+              },
+              startGet:function (){
+
+             },
+           }
+         })
 	
    </script>
 </html>
